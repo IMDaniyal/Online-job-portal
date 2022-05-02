@@ -443,8 +443,17 @@ router.put("/user", jwtAuth, (req, res) => {
         if (data.education) {
           jobApplicant.education = data.education;
         }
+        if (data.experience) {
+          jobApplicant.experience = data.experience;
+        }
+        if (data.certification) {
+          jobApplicant.certification = data.certification;
+        }
         if (data.skills) {
           jobApplicant.skills = data.skills;
+        }
+        if (data.languages) {
+          jobApplicant.languages = data.languages;
         }
         if (data.resume) {
           jobApplicant.resume = data.resume;
