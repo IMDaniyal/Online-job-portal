@@ -408,40 +408,6 @@ const Login = (props) => {
                 }
               />
             </Grid>
-            <Grid item>
-              <FileUploadInput
-                className={classes.inputBox}
-                label="Resume (.pdf)"
-                icon={<DescriptionIcon />}
-                // value={files.resume}
-                // onChange={(event) =>
-                //   setFiles({
-                //     ...files,
-                //     resume: event.target.files[0],
-                //   })
-                // }
-                uploadTo={apiList.uploadResume}
-                handleInput={handleInput}
-                identifier={"resume"}
-              />
-            </Grid>
-            <Grid item>
-              <FileUploadInput
-                className={classes.inputBox}
-                label="Profile Photo (.jpg/.png)"
-                icon={<FaceIcon />}
-                // value={files.profileImage}
-                // onChange={(event) =>
-                //   setFiles({
-                //     ...files,
-                //     profileImage: event.target.files[0],
-                //   })
-                // }
-                uploadTo={apiList.uploadProfileImage}
-                handleInput={handleInput}
-                identifier={"profile"}
-              />
-            </Grid>
           </>
         ) : (
           <>
