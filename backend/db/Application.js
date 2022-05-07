@@ -2,30 +2,35 @@ const mongoose = require("mongoose");
 
 let schema = new mongoose.Schema(
   {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'JobApplicantInfo',
+      required: true,
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
+      required: true,
+    },
+    recruiter: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'RecruiterInfo',
       required: true,
     },
     recruiterId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
     },
-    jobId: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-    },
     status: {
       type: String,
       enum: [
-        "applied", // when a applicant is applied
+        "invited", // when a recruiter invites applicant for the job
+        "screening", // when a recruiter sends a request for screening
         "shortlisted", // when a applicant is shortlisted
         "accepted", // when a applicant is accepted
         "rejected", // when a applicant is rejected
-        "deleted", // when any job is deleted
         "cancelled", // an application is cancelled by its author or when other application is accepted
-        "finished", // when job is over
       ],
-      default: "applied",
+      default: "invited",
       required: true,
     },
     dateOfApplication: {
@@ -42,15 +47,6 @@ let schema = new mongoose.Schema(
           msg: "dateOfJoining should be greater than dateOfApplication",
         },
       ],
-    },
-    sop: {
-      type: String,
-      validate: {
-        validator: function (v) {
-          return v.split(" ").filter((ele) => ele != "").length <= 250;
-        },
-        msg: "Statement of purpose should not be greater than 250 words",
-      },
     },
   },
   { collation: { locale: "en" } }

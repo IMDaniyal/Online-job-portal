@@ -7,7 +7,7 @@ const fs = require("fs");
 
 // MongoDB
 mongoose
-  .connect("mongodb://localhost:27017/obPortal", {
+  .connect("mongodb://localhost:27017/cvBuilder", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,

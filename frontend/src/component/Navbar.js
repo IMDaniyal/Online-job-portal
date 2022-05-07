@@ -34,19 +34,13 @@ const Navbar = (props) => {
     <AppBar position="fixed">
       <Toolbar>
         <Typography variant="h6" className={classes.title}>
-          Job Portal
+          CV Builder
         </Typography>
         {isAuth() ? (
           userType() === "recruiter" ? (
             <>
               <Button color="inherit" onClick={() => handleClick("/home")}>
                 Home
-              </Button>
-              <Button color="inherit" onClick={() => handleClick("/addjob")}>
-                Add Jobs
-              </Button>
-              <Button color="inherit" onClick={() => handleClick("/myjobs")}>
-                My Jobs
               </Button>
               <Button color="inherit" onClick={() => handleClick("/employees")}>
                 Employees
@@ -60,9 +54,6 @@ const Navbar = (props) => {
             </>
           ) : (
             <>
-              <Button color="inherit" onClick={() => handleClick("/home")}>
-                Home
-              </Button>
               <Button
                 color="inherit"
                 onClick={() => handleClick("/applications")}
@@ -70,7 +61,7 @@ const Navbar = (props) => {
                 Applications
               </Button>
               <Button color="inherit" onClick={() => handleClick("/profile")}>
-                Profile
+                CV
               </Button>
               <Button color="inherit" onClick={() => handleClick("/logout")}>
                 Logout

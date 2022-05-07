@@ -110,6 +110,9 @@ let schema = new mongoose.Schema(
     profile: {
       type: String,
     },
+    applications: [{
+      type: mongoose.Schema.Types.ObjectId, ref: 'applications'
+    }],
   },
   { collation: { locale: "en" } }
 );
