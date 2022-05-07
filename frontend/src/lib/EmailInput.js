@@ -13,6 +13,7 @@ const EmailInput = (props) => {
 
   return (
     <TextField
+      required
       label={label}
       variant="outlined"
       value={value}

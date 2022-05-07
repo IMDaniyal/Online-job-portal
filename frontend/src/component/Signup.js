@@ -332,6 +332,7 @@ const Login = (props) => {
         </Grid>
         <Grid item>
           <TextField
+            required
             select
             label="Category"
             variant="outlined"
@@ -347,6 +348,7 @@ const Login = (props) => {
         </Grid>
         <Grid item>
           <TextField
+            required
             label="Name"
             value={signupDetails.name}
             onChange={(event) => handleInput("name", event.target.value)}
@@ -376,6 +378,7 @@ const Login = (props) => {
         </Grid>
         <Grid item>
           <PasswordInput
+            required
             label="Password"
             value={signupDetails.password}
             onChange={(event) => handleInput("password", event.target.value)}

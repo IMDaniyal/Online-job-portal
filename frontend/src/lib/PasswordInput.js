@@ -24,10 +24,11 @@ const PasswordInput = (props) => {
   return (
     <>
       <FormControl variant="outlined" error={props.error ? props.error : null}>
-        <InputLabel htmlFor="outlined-adornment-password">
+        <InputLabel  required htmlFor="outlined-adornment-password">
           {props.label}
         </InputLabel>
         <OutlinedInput
+          required
           id="outlined-adornment-password"
           type={showPassword ? "text" : "password"}
           endAdornment={
