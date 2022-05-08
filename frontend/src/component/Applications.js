@@ -54,73 +54,17 @@ const ApplicationTile = (props) => {
   const { application } = props;
   const setPopup = useContext(SetPopupContext);
   const [open, setOpen] = useState(false);
-  const [rating, setRating] = useState(application.job.rating);
 
   const appliedOn = new Date(application.dateOfApplication);
   const joinedOn = new Date(application.dateOfJoining);
-
-  const fetchRating = () => {
-    axios
-      .get(`${apiList.rating}?id=${application.job._id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
-      .then((response) => {
-        setRating(response.data.rating);
-        console.log(response.data);
-      })
-      .catch((err) => {
-        // console.log(err.response);
-        console.log(err.response.data);
-        setPopup({
-          open: true,
-          severity: "error",
-          message: "Error",
-        });
-      });
-  };
-
-  const changeRating = () => {
-    axios
-      .put(
-        apiList.rating,
-        { rating: rating, jobId: application.job._id },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      )
-      .then((response) => {
-        console.log(response.data);
-        setPopup({
-          open: true,
-          severity: "success",
-          message: "Rating updated successfully",
-        });
-        fetchRating();
-        setOpen(false);
-      })
-      .catch((err) => {
-        // console.log(err.response);
-        console.log(err);
-        setPopup({
-          open: true,
-          severity: "error",
-          message: err.response.data.message,
-        });
-        fetchRating();
-        setOpen(false);
-      });
-  };
 
   const handleClose = () => {
     setOpen(false);
   };
 
   const colorSet = {
-    applied: "#3454D1",
+    invited: "#3454D1",
+    screening: "#DC851F",
     shortlisted: "#DC851F",
     accepted: "#09BC8A",
     rejected: "#D1345B",
@@ -129,62 +73,87 @@ const ApplicationTile = (props) => {
     finished: "#4EA5D9",
   };
 
+  const updateStatus = (status) => {
+    const address = `${apiList.applications}/${application._id}`;
+    const statusData = {
+      status: status,
+      dateOfJoining: new Date().toISOString(),
+    };
+    axios
+      .put(address, statusData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((response) => {
+        setPopup({
+          open: true,
+          severity: "success",
+          message: response.data.message,
+        });
+      })
+      .catch((err) => {
+        setPopup({
+          open: true,
+          severity: "error",
+          message: err.response.data.message,
+        });
+        console.log(err.response);
+      });
+  };
+
   return (
     <Paper className={classes.jobTileOuter} elevation={3}>
       <Grid container>
         <Grid container item xs={9} spacing={1} direction="column">
           <Grid item>
-            <Typography variant="h5">{application.job.title}</Typography>
+            <Typography variant="h5">{application.recruiter.name}</Typography>
           </Grid>
-          <Grid item>Posted By: {application.recruiter.name}</Grid>
-          <Grid item>Role : {application.job.jobType}</Grid>
-          <Grid item>Salary : &#xA3; {application.job.salary} per month</Grid>
-          <Grid item>
-            Duration :{" "}
-            {application.job.duration !== 0
-              ? `${application.job.duration} month`
-              : `Flexible`}
-          </Grid>
-          <Grid item>
-            {application.job.skillsets.map((skill) => (
-              <Chip label={skill} style={{ marginRight: "2px" }} />
-            ))}
-          </Grid>
-          <Grid item>Applied On: {appliedOn.toLocaleDateString()}</Grid>
+          <Grid item>{application.status} on: {appliedOn.toLocaleDateString()}</Grid>
           {application.status === "accepted" ||
           application.status === "finished" ? (
             <Grid item>Joined On: {joinedOn.toLocaleDateString()}</Grid>
           ) : null}
         </Grid>
-        <Grid item container direction="column" xs={3}>
-          <Grid item xs>
-            <Paper
-              className={classes.statusBlock}
-              style={{
-                background: colorSet[application.status],
-                color: "#ffffff",
-              }}
-            >
-              {application.status}
-            </Paper>
-          </Grid>
-          {application.status === "accepted" ||
-          application.status === "finished" ? (
-            <Grid item>
-              <Button
-                variant="contained"
-                color="primary"
-                className={classes.statusBlock}
-                onClick={() => {
-                  fetchRating();
-                  setOpen(true);
-                }}
-              >
-                Rate Job
-              </Button>
+        {application.status === "invited"  ? (
+            <Grid item container direction="column" xs={3}>
+              <Grid item style={{ paddingBottom: "2px" }}>
+                <Button
+                  variant="contained"
+                  className={classes.statusBlock}
+                  color="primary"
+                  onClick={() => updateStatus("screening")}
+                >
+                  Accept Invitation
+                </Button>
+              </Grid>
+              <Grid item style={{ paddingBottom: "2px" }}>
+                <Button
+                  style={{ paddingBottom: "2px", background: colorSet["cancelled"], }}
+                  variant="contained"
+                  className={classes.statusBlock}
+                  color="primary"
+                  onClick={() => updateStatus("cancelled")}
+                >
+                  Reject
+                </Button>
+              </Grid>
             </Grid>
-          ) : null}
-        </Grid>
+            ): (
+              <Grid item container direction="column" xs={3}>
+                 <Grid item xs>
+                  <Paper
+                    className={classes.statusBlock}
+                    style={{
+                      background: colorSet[application.status],
+                      color: "#ffffff",
+                    }}
+                  >
+                    {application.status}
+                  </Paper>
+                </Grid>
+              </Grid>
+            )}
       </Grid>
       <Modal open={open} onClose={handleClose} className={classes.popupDialog}>
         <Paper
@@ -201,16 +170,13 @@ const ApplicationTile = (props) => {
           <Rating
             name="simple-controlled"
             style={{ marginBottom: "30px" }}
-            value={rating === -1 ? null : rating}
-            onChange={(event, newValue) => {
-              setRating(newValue);
-            }}
+            value="null"
           />
           <Button
             variant="contained"
             color="primary"
             style={{ padding: "10px 50px" }}
-            onClick={() => changeRating()}
+            // onClick={() => changeRating()}
           >
             Submit
           </Button>
@@ -266,9 +232,8 @@ const Applications = (props) => {
         item
         xs
         direction="column"
-        style={{ width: "100%" }}
+        style={{ width: "100%", marginTop: "20px" }}
         alignItems="stretch"
-        justify="center"
       >
         {applications.length > 0 ? (
           applications.map((obj) => (

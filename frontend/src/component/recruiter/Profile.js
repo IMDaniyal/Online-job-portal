@@ -152,7 +152,7 @@ const Profile = (props) => {
               </Grid>
               <Grid item>
                 <TextField
-                  label="Bio (upto 250 words)"
+                  label="Company Info (upto 250 words)"
                   multiline
                   rows={8}
                   style={{ width: "100%" }}

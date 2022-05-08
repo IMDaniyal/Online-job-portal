@@ -504,11 +504,6 @@ router.post("/user/:id/applications", jwtAuth, (req, res) => {
   const data = req.body;
   console.log(data, user)
 
-  // check whether applied previously
-  // find job
-  // check count of active applications < limit
-  // check user had < 10 active applications && check if user is not having any accepted jobs (user id)
-  // store the data in applications
   Recruiter.findOne({
     userId: user._id,
   })
@@ -531,9 +526,9 @@ router.post("/user/:id/applications", jwtAuth, (req, res) => {
         console.log("During APPLICATION IN API");
         const application = new Application({
           user: data,
-          userId: data._id,
+          userId: data.userId,
           recruiter: recruiter,
-          recruiterId: recruiter._id,
+          recruiterId: recruiter.userId,
           status: "invited",
         });
         console.log("APPLICATION IN API", application);
@@ -621,15 +616,6 @@ router.get("/applications", jwtAuth, (req, res) => {
     { $unwind: "$jobApplicant" },
     {
       $lookup: {
-        from: "jobs",
-        localField: "jobId",
-        foreignField: "_id",
-        as: "job",
-      },
-    },
-    { $unwind: "$job" },
-    {
-      $lookup: {
         from: "recruiterinfos",
         localField: "recruiterId",
         foreignField: "userId",
@@ -669,7 +655,6 @@ router.put("/applications/:id", jwtAuth, (req, res) => {
   // "deleted", // when any job is deleted
   // "cancelled", // an application is cancelled by its author or when other application is accepted
   // "finished", // when job is over
-  console.log("Applucation status update", req.body, req.params, req.user)
   if (user.type === "recruiter") {
     if (status === "accepted") {
       // get job id from application
@@ -818,6 +803,29 @@ router.put("/applications/:id", jwtAuth, (req, res) => {
     }
   } else {
     if (status === "cancelled") {
+      console.log(id);
+      console.log(user._id);
+      Application.findOneAndUpdate(
+        {
+          _id: id,
+          userId: user._id,
+        },
+        {
+          $set: {
+            status: status,
+          },
+        }
+      )
+        .then((tmp) => {
+          console.log(tmp);
+          res.json({
+            message: `Application ${status} successfully`,
+          });
+        })
+        .catch((err) => {
+          res.status(400).json(err);
+        });
+    } else if (status === "screening") {
       console.log(id);
       console.log(user._id);
       Application.findOneAndUpdate(
