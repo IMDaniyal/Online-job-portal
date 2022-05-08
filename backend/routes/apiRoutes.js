@@ -656,116 +656,6 @@ router.put("/applications/:id", jwtAuth, (req, res) => {
   // "cancelled", // an application is cancelled by its author or when other application is accepted
   // "finished", // when job is over
   if (user.type === "recruiter") {
-    if (status === "accepted") {
-      // get job id from application
-      // get job info for maxPositions count
-      // count applications that are already accepted
-      // compare and if condition is satisfied, then save
-
-      Application.findOne({
-        _id: id,
-        recruiterId: user._id,
-      })
-        .then((application) => {
-          if (application === null) {
-            res.status(404).json({
-              message: "Application not found",
-            });
-            return;
-          }
-
-          Job.findOne({
-            _id: application.jobId,
-            userId: user._id,
-          }).then((job) => {
-            if (job === null) {
-              res.status(404).json({
-                message: "Job does not exist",
-              });
-              return;
-            }
-
-            Application.countDocuments({
-              recruiterId: user._id,
-              jobId: job._id,
-              status: "accepted",
-            }).then((activeApplicationCount) => {
-              if (activeApplicationCount < job.maxPositions) {
-                // accepted
-                application.status = status;
-                application.dateOfJoining = req.body.dateOfJoining;
-                application
-                  .save()
-                  .then(() => {
-                    Application.updateMany(
-                      {
-                        _id: {
-                          $ne: application._id,
-                        },
-                        userId: application.userId,
-                        status: {
-                          $nin: [
-                            "rejected",
-                            "deleted",
-                            "cancelled",
-                            "accepted",
-                            "finished",
-                          ],
-                        },
-                      },
-                      {
-                        $set: {
-                          status: "cancelled",
-                        },
-                      },
-                      { multi: true }
-                    )
-                      .then(() => {
-                        if (status === "accepted") {
-                          Job.findOneAndUpdate(
-                            {
-                              _id: job._id,
-                              userId: user._id,
-                            },
-                            {
-                              $set: {
-                                acceptedCandidates: activeApplicationCount + 1,
-                              },
-                            }
-                          )
-                            .then(() => {
-                              res.json({
-                                message: `Application ${status} successfully`,
-                              });
-                            })
-                            .catch((err) => {
-                              res.status(400).json(err);
-                            });
-                        } else {
-                          res.json({
-                            message: `Application ${status} successfully`,
-                          });
-                        }
-                      })
-                      .catch((err) => {
-                        res.status(400).json(err);
-                      });
-                  })
-                  .catch((err) => {
-                    res.status(400).json(err);
-                  });
-              } else {
-                res.status(400).json({
-                  message: "All positions for this job are already filled",
-                });
-              }
-            });
-          });
-        })
-        .catch((err) => {
-          res.status(400).json(err);
-        });
-    } else {
       Application.findOneAndUpdate(
         {
           _id: id,
@@ -800,7 +690,6 @@ router.put("/applications/:id", jwtAuth, (req, res) => {
         .catch((err) => {
           res.status(400).json(err);
         });
-    }
   } else {
     if (status === "cancelled") {
       console.log(id);
@@ -864,62 +753,6 @@ router.get("/applicants", jwtAuth, (req, res) => {
     let findParams = {
       recruiterId: user._id,
     };
-    if (req.query.jobId) {
-      findParams = {
-        ...findParams,
-        jobId: new mongoose.Types.ObjectId(req.query.jobId),
-      };
-    }
-    if (req.query.status) {
-      if (Array.isArray(req.query.status)) {
-        findParams = {
-          ...findParams,
-          status: { $in: req.query.status },
-        };
-      } else {
-        findParams = {
-          ...findParams,
-          status: req.query.status,
-        };
-      }
-    }
-    let sortParams = {};
-
-    if (!req.query.asc && !req.query.desc) {
-      sortParams = { _id: 1 };
-    }
-
-    if (req.query.asc) {
-      if (Array.isArray(req.query.asc)) {
-        req.query.asc.map((key) => {
-          sortParams = {
-            ...sortParams,
-            [key]: 1,
-          };
-        });
-      } else {
-        sortParams = {
-          ...sortParams,
-          [req.query.asc]: 1,
-        };
-      }
-    }
-
-    if (req.query.desc) {
-      if (Array.isArray(req.query.desc)) {
-        req.query.desc.map((key) => {
-          sortParams = {
-            ...sortParams,
-            [key]: -1,
-          };
-        });
-      } else {
-        sortParams = {
-          ...sortParams,
-          [req.query.desc]: -1,
-        };
-      }
-    }
 
     Application.aggregate([
       {
@@ -931,17 +764,7 @@ router.get("/applicants", jwtAuth, (req, res) => {
         },
       },
       { $unwind: "$jobApplicant" },
-      {
-        $lookup: {
-          from: "jobs",
-          localField: "jobId",
-          foreignField: "_id",
-          as: "job",
-        },
-      },
-      { $unwind: "$job" },
       { $match: findParams },
-      { $sort: sortParams },
     ])
       .then((applications) => {
         if (applications.length === 0) {
@@ -950,7 +773,8 @@ router.get("/applicants", jwtAuth, (req, res) => {
           });
           return;
         }
-        res.json(applications);
+        const checkStatus = obj => obj.status !== 'invited';
+        res.json(applications.filter(checkStatus));
       })
       .catch((err) => {
         res.status(400).json(err);
