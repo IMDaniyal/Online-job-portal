@@ -313,13 +313,15 @@ router.delete("/jobs/:id", jwtAuth, (req, res) => {
 });
 
 // get all users
-router.get("/users", jwtAuth, (req, res) => {
-  JobApplicant.find({}, (err, users) => {
-      res.json(users);
-    })
-    .catch((err) => {
-      res.status(400).json(err);
-    });
+router.get("/users", jwtAuth, (req, res) => {  
+  const regex = new RegExp(req.query.q, 'i') // i for case insensitive
+  JobApplicant.find({skills: {$regex: regex}},(err, users) => {
+    res.json(users);
+  })
+  .catch((err) => {
+    res.status(400).json(err);
+  });
+
 });
 
 // get user's personal details
