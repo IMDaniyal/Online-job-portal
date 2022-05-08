@@ -315,12 +315,34 @@ router.delete("/jobs/:id", jwtAuth, (req, res) => {
 // get all users
 router.get("/users", jwtAuth, (req, res) => {  
   const regex = new RegExp(req.query.q, 'i') // i for case insensitive
-  JobApplicant.find({skills: {$regex: regex}},(err, users) => {
-    res.json(users);
-  })
-  .catch((err) => {
-    res.status(400).json(err);
-  });
+  let findParams = {
+    skills: {$regex: regex},
+  };
+
+  JobApplicant.aggregate([
+    {
+      $lookup: {
+        from: "applications",
+        localField: "userId",
+        foreignField: "userId",
+        as: "application",
+      },
+    },
+    { $match: findParams },
+  ])
+    .then((applications) => {
+      if (applications.length === 0) {
+        res.status(404).json({
+          message: "No applicants found",
+        });
+        return;
+      }
+      console.log("APIIII", applications)
+      res.json(applications);
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
 
 });
 
@@ -509,14 +531,14 @@ router.post("/user/:id/applications", jwtAuth, (req, res) => {
   })
   .then((recruiter) => {
     Application.findOne({
-      userId: data._id,
-      recruiterId: recruiter._id,
+      userId: data.userId,
+      recruiterId: recruiter.userId,
       status: {
         $nin: ["accepted", "cancelled"],
       },
     })
     .then((appliedApplication) => {
-      console.log(appliedApplication);
+      console.log("RECRUITERSSSS APPLICATIONS",appliedApplication);
       if (appliedApplication !== null) {
         res.status(400).json({
           message: "You have already sent invite",
@@ -785,38 +807,5 @@ router.get("/applicants", jwtAuth, (req, res) => {
     });
   }
 });
-
-// Application.findOne({
-//   _id: id,
-//   userId: user._id,
-// })
-//   .then((application) => {
-//     application.status = status;
-//     application
-//       .save()
-//       .then(() => {
-//         res.json({
-//           message: `Application ${status} successfully`,
-//         });
-//       })
-//       .catch((err) => {
-//         res.status(400).json(err);
-//       });
-//   })
-//   .catch((err) => {
-//     res.status(400).json(err);
-//   });
-
-// router.get("/jobs", (req, res, next) => {
-//   passport.authenticate("jwt", { session: false }, function (err, user, info) {
-//     if (err) {
-//       return next(err);
-//     }
-//     if (!user) {
-//       res.status(401).json(info);
-//       return;
-//     }
-//   })(req, res, next);
-// });
 
 module.exports = router;
