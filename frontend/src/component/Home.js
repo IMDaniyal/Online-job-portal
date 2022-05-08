@@ -17,6 +17,7 @@ import {
   Checkbox,
   Avatar,
 } from "@material-ui/core";
+import ChipInput from "material-ui-chip-input";
 import Rating from "@material-ui/lab/Rating";
 import Pagination from "@material-ui/lab/Pagination";
 import axios from "axios";
@@ -41,7 +42,6 @@ const useStyles = makeStyles((theme) => ({
   },
   jobTileOuter: {
     padding: "30px",
-    margin: "20px 0",
     boxSizing: "border-box",
     width: "100%",
   },
@@ -71,6 +71,7 @@ const ApplicationTile = (props) => {
   const setPopup = useContext(SetPopupContext);
   const [open, setOpen] = useState(false);
   const [openEndJob, setOpenEndJob] = useState(false);
+  const [openProfileView, setProfileView] = useState(false);
 
   const appliedOn = new Date(application.dateOfApplication);
 
@@ -80,6 +81,10 @@ const ApplicationTile = (props) => {
 
   const handleCloseEndJob = () => {
     setOpenEndJob(false);
+  };
+
+  const handleCloseProfileView = () => {
+    setProfileView(false);
   };
 
   const colorSet = {
@@ -219,7 +224,7 @@ const ApplicationTile = (props) => {
           </Grid>
         </Grid>
         <Grid item container direction="column" xs={3}>
-          <Grid item style={{ paddingBottom: "4px" }}>
+          <Grid item style={{ paddingBottom: "2px" }}>
             <Button
               variant="contained"
               className={classes.statusBlock}
@@ -230,19 +235,17 @@ const ApplicationTile = (props) => {
               Download Resume
             </Button>
           </Grid>
-          {/* {applications.length > 0 ? (
-            applications.map((obj) => (
-              <Grid item>
-                <ApplicationTile application={obj} getData={getData} />
-              </Grid>
-            ))
-          ) : (
-            <Typography variant="h5" style={{ textAlign: "center" }}>
-              No Applications Found
-            </Typography>
-          )} */}
+          <Grid item style={{ paddingBottom: "2px" }}>
+            <Button
+              variant="contained"
+              className={classes.statusBlock}
+              color="primary"
+              onClick={() => setProfileView(true)}
+            >
+              View User Profile
+            </Button>
+          </Grid>
           <Grid item container xs>
-            {/* {buttonSet[application.status]} */}
             <Button
               variant="contained"
               color="primary"
@@ -304,6 +307,224 @@ const ApplicationTile = (props) => {
           </Grid>
         </Paper>
       </Modal>
+      <Modal
+        style={{overflow:'scroll', display:'block', right:'10%', left:'10%'}}
+        open={openProfileView}
+        onClose={handleCloseProfileView}
+        className={classes.popupDialog}
+      >
+        <Paper
+          style={{
+            padding: "20px",
+            outline: "none",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            minWidth: "30%",
+            alignItems: "center",
+          }}
+        >
+          <Typography variant="h6" style={{ marginBottom: "16px", textAlign: "center"}}>{application.name}'s CV</Typography>
+          <Grid container direction="column" alignItems="stretch" spacing={3}>
+            <Grid item>
+              <TextField
+                label="Name"
+                value={application.name}
+                className={classes.inputBox}
+                variant="outlined"
+                inputProps={
+                  { readOnly: true, }
+                }
+                fullWidth
+              />
+            </Grid>
+            {application.education.length > 0 &&
+              <Typography variant="h6" style={{ padding: "8px" }}> Education</Typography>
+            }
+            {application.education.map((obj, key) => (
+              <Grid item container className={classes.inputBox} key={key}>
+                <Grid item xs={4}>
+                  <TextField
+                    label={`Institution Name #${key + 1}`}
+                    value={obj.institutionName}
+                    variant="outlined"
+                    fullWidth
+                    inputProps={
+                      { readOnly: true, }
+                    }
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <TextField
+                    label={`Degree Title`}
+                    value={obj.degreeTitle}
+                    variant="outlined"
+                    fullWidth
+                    inputProps={
+                      { readOnly: true, }
+                    }
+                  />
+                </Grid>
+                <Grid item xs={2}>
+                  <TextField
+                    label="Start Year"
+                    value={obj.startYear}
+                    variant="outlined"
+                    type="number"
+                    inputProps={
+                      { readOnly: true, }
+                    }
+                  />
+                </Grid>
+                <Grid item xs={2}>
+                  <TextField
+                    label={obj.endYear? "End Year": ""}
+                    value={obj.endYear? obj.endYear: "present"}
+                    variant="outlined"
+                    type={obj.endYear? "number":""}
+                    inputProps={
+                      { readOnly: true, }
+                    }
+                    />
+                </Grid>
+              </Grid>
+            ))}
+            {application.experience.length > 0 &&
+              <Typography variant="h6" style={{ padding: "8px" }}> Experience</Typography>
+            }
+             {application.experience.map((obj, key) => (
+              <Grid item container className={classes.inputBox} key={key}>
+                <Grid item xs={4}>
+                  <TextField
+                    label={`Company Name #${key + 1}`}
+                    value={obj.companyName}
+                    variant="outlined"
+                    fullWidth
+                    inputProps={
+                      { readOnly: true, }
+                    }
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <TextField
+                    label={`Job Title`}
+                    value={obj.jobTitle}
+                    variant="outlined"
+                    fullWidth
+                    inputProps={
+                      { readOnly: true, }
+                    }
+                  />
+                </Grid>
+                <Grid item xs={2}>
+                  <TextField
+                    label="Start Year"
+                    value={obj.startYear}
+                    variant="outlined"
+                    type="number"
+                    inputProps={
+                      { readOnly: true, }
+                    }
+                  />
+                </Grid>
+                <Grid item xs={2}>
+                <TextField
+                    label={obj.endYear? "End Year": ""}
+                    value={obj.endYear? obj.endYear: "present"}
+                    variant="outlined"
+                    type={obj.endYear? "number":""}
+                    inputProps={
+                      { readOnly: true, }
+                    }
+                    />
+                </Grid>
+              </Grid>
+            ))}
+            {application.skills.length > 0 &&
+              <Grid item>
+                  <ChipInput
+                    className={classes.inputBox}
+                    label="Skills"
+                    variant="outlined"
+                    value={application.skills}
+                    style={{ margin: "4px" }}
+                    fullWidth
+                    disabled
+                    readOnly
+                    inputProps={
+                      { readOnly: true, }
+                    }
+                  />
+              </Grid>
+            }
+            {application.languages.length > 0 &&
+              <Grid item>
+                  <ChipInput
+                    className={classes.inputBox}
+                    label="Languages"
+                    variant="outlined"
+                    value={application.languages}
+                    style={{ margin: "4px" }}
+                    fullWidth
+                    disabled
+                    readOnly
+                  />
+              </Grid>
+            }
+            {application.certification.length > 0 &&
+              <Typography variant="h6" style={{ padding: "8px" }}> Certifications</Typography>
+            }
+            {application.certification.map((obj, key) => (
+              <Grid item container className={classes.inputBox} key={key}>
+                <Grid item xs={6}>
+                  <TextField
+                    label={`Certificiation Title #${key + 1}`}
+                    value={obj.certificationTitle}
+                    variant="outlined"
+                    fullWidth
+                    inputProps={
+                      { readOnly: true, }
+                    }
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <TextField
+                    label={`Issued By`}
+                    value={obj.issuedBy}
+                    variant="outlined"
+                    fullWidth
+                    inputProps={
+                      { readOnly: true, }
+                    }
+                  />
+                </Grid>
+                <Grid item xs={2}>
+                  <TextField
+                    label="Valid Till"
+                    value={obj.validTill}
+                    variant="outlined"
+                    type="number"
+                    inputProps={
+                      { readOnly: true, }
+                    }
+                  />
+                </Grid>
+              </Grid>
+            ))}
+          </Grid>
+          
+          <Grid item style={{ padding: "8px", marginTop: "12px" }}>
+            <Button
+              variant="contained"
+              color="primary"
+              style={{ padding: "10px 50px" }}
+              onClick={() => handleCloseProfileView()}
+            >
+              Close
+            </Button>
+          </Grid>
+        </Paper>
+      </Modal>
     </Paper>
   );
 };
@@ -312,23 +533,6 @@ const Home = (props) => {
   const [applications, setApplications] = useState([]);
   const [searchOptions, setSearchOptions] = useState({
     query: "",
-    jobType: {
-      fullTime: false,
-      partTime: false,
-      wfh: false,
-    },
-    salary: [0, 100],
-    duration: "0",
-    sort: {
-      salary: {
-        status: false,
-        desc: false,
-      },
-      duration: {
-        status: false,
-        desc: false,
-      },
-    },
   });
 
   const setPopup = useContext(SetPopupContext);
@@ -338,23 +542,10 @@ const Home = (props) => {
 
   const getData = () => {
     let searchParams = [];
-    searchParams = [...searchParams, `status=accepted`];
-
-    let asc = [],
-      desc = [];
-
-    Object.keys(searchOptions.sort).forEach((obj) => {
-      const item = searchOptions.sort[obj];
-      if (item.status) {
-        if (item.desc) {
-          desc = [...desc, `desc=${obj}`];
-        } else {
-          asc = [...asc, `asc=${obj}`];
-        }
-      }
-    });
-
-    searchParams = [...searchParams, ...asc, ...desc];
+    if (searchOptions.query !== "") {
+      searchParams = [...searchParams, `q=${searchOptions.query}`];
+    }
+    searchParams = [...searchParams];
     const queryString = searchParams.join("&");
     console.log(queryString);
     let address = `${apiList.users}`;
@@ -369,6 +560,7 @@ const Home = (props) => {
         },
       })
       .then((response) => {
+        console.log("USERSSS",response.data);
         setApplications(response.data);
       })
       .catch((err) => {
@@ -408,7 +600,6 @@ const Home = (props) => {
               value={searchOptions.query}
               onChange={(event) =>
                 setSearchOptions({
-                  ...searchOptions,
                   query: event.target.value,
                 })
               }
@@ -426,7 +617,7 @@ const Home = (props) => {
                   </InputAdornment>
                 ),
               }}
-              style={{ width: "500px" }}
+              style={{ width: "500px", marginBottom: "20px" }}
               variant="outlined"
             />
           </Grid>
