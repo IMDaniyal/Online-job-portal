@@ -614,6 +614,17 @@ const Home = (props) => {
                     <IconButton onClick={() => getData()}>
                       <SearchIcon />
                     </IconButton>
+                    {searchOptions.query && 
+                      <Button
+                        onClick={() => {
+                          setSearchOptions({
+                            query: "",
+                          });
+                        }}
+                      >
+                        clear
+                      </Button>
+                    }
                   </InputAdornment>
                 ),
               }}
