@@ -318,6 +318,14 @@ router.get("/users", jwtAuth, (req, res) => {
   let findParams = {
     skills: {$regex: regex},
   };
+  findParams = {"$or":[
+    {...findParams},
+    {name: {$regex: regex},},
+    {education: {$elemMatch :{degreeTitle: {$regex: regex}}}},
+    {experience: {$elemMatch :{jobTitle: {$regex: regex}}}},
+    {certification: {$elemMatch :{certificationTitle: {$regex: regex}}}}
+  ]
+  };
 
   JobApplicant.aggregate([
     {
@@ -337,7 +345,6 @@ router.get("/users", jwtAuth, (req, res) => {
         });
         return;
       }
-      console.log("APIIII", applications)
       res.json(applications);
     })
     .catch((err) => {
