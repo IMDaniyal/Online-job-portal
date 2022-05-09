@@ -1,7 +1,7 @@
 ## Instructions for initializing web app:
 
 - Install Node JS, MongoDB in the machine.
-- Start MongoDB server: `sudo service mongod start`
+- Start MongoDB server
 - Move inside backend directory: `cd backend`
 - Install dependencies in backend directory: `npm install`
 - Start express server: `npm start`
