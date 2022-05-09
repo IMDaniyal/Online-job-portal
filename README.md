@@ -11,3 +11,4 @@
 - Start web app's frontend server: `npm start`
 - Frontend server will start on port 3000.
 - Now open `http://localhost:3000/`.
+- Run `mongorestore  dump/` to apply the database dump.
