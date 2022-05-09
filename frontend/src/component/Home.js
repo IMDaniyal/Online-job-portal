@@ -1,4 +1,6 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, React } from "react";
+import { PDFDownloadLink } from '@react-pdf/renderer';
+
 import {
   Button,
   Chip,
@@ -25,6 +27,7 @@ import SearchIcon from "@material-ui/icons/Search";
 import FilterListIcon from "@material-ui/icons/FilterList";
 import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
 import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
+import MyDocument from "./MyDocument"
 
 import { SetPopupContext } from "../App";
 
@@ -161,39 +164,6 @@ const ApplicationTile = (props) => {
       });
   };
 
-
-  const updateStatus = (status) => {
-    const address = `${apiList.applications}/${application._id}`;
-    const statusData = {
-      status: status,
-      dateOfJoining: new Date().toISOString(),
-    };
-    axios
-      .put(address, statusData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
-      .then((response) => {
-        setPopup({
-          open: true,
-          severity: "success",
-          message: response.data.message,
-        });
-        handleCloseEndJob();
-        getData();
-      })
-      .catch((err) => {
-        setPopup({
-          open: true,
-          severity: "error",
-          message: err.response.data.message,
-        });
-        console.log(err.response);
-        handleCloseEndJob();
-      });
-  };
-
   return (
     <Paper className={classes.jobTileOuter} elevation={3}>
       <Grid container>
@@ -261,7 +231,7 @@ const ApplicationTile = (props) => {
             </Button>
           </Grid>
         </Grid>
-      </Grid>
+      </Grid>      
       <Modal
         open={openEndJob}
         onClose={handleCloseEndJob}
@@ -324,7 +294,12 @@ const ApplicationTile = (props) => {
             alignItems: "center",
           }}
         >
-          <Typography variant="h6" style={{ marginBottom: "16px", textAlign: "center"}}>{application.name}'s CV</Typography>
+          <Typography variant="h6" style={{ marginBottom: "8px", textAlign: "center"}}>{application.name}'s CV</Typography>
+          <PDFDownloadLink style={{ marginBottom: "16px"}} document={<MyDocument application={application}/>} fileName="resume.pdf">
+                {({ blob, url, loading, error }) =>
+                    loading ? 'Loading document...' : 'Generate CV!'
+                }
+          </PDFDownloadLink>
           <Grid container direction="column" alignItems="stretch" spacing={3}>
             <Grid item>
               <TextField
