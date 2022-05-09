@@ -10,9 +10,6 @@ import Signup from "./component/Signup";
 import Home from "./component/Home";
 import Applications from "./component/Applications";
 import Profile from "./component/Profile";
-import CreateJobs from "./component/recruiter/CreateJobs";
-import MyJobs from "./component/recruiter/MyJobs";
-import JobApplications from "./component/recruiter/JobApplications";
 import AcceptedApplicants from "./component/recruiter/AcceptedApplicants";
 import RecruiterProfile from "./component/recruiter/Profile";
 import MessagePopup from "./lib/MessagePopup";
@@ -73,15 +70,6 @@ function App() {
                 ) : (
                   <Profile />
                 )}
-              </Route>
-              <Route exact path="/addjob">
-                <CreateJobs />
-              </Route>
-              <Route exact path="/myjobs">
-                <MyJobs />
-              </Route>
-              <Route exact path="/job/applications/:jobId">
-                <JobApplications />
               </Route>
               <Route exact path="/employees">
                 <AcceptedApplicants />
