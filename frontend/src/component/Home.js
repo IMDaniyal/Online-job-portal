@@ -596,7 +596,7 @@ const Home = (props) => {
           </Grid>
           <Grid item xs>
             <TextField
-              label="Search Skills"
+              label="Search Candidate"
               value={searchOptions.query}
               onChange={(event) =>
                 setSearchOptions({
